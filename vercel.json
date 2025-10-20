@@ -1,0 +1,23 @@
+{
+  "buildCommand": "cd examples/nextjs-app && pnpm install && pnpm build",
+  "outputDirectory": "examples/nextjs-app/dist",
+  "framework": "vite",
+  "env": {
+    "VITE_CONTRACT_ADDRESS": {
+      "description": "Deployed MockAuction contract address on Sepolia",
+      "example": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    },
+    "VITE_RELAYER_PUBLIC_KEY": {
+      "description": "FHEVM Relayer public key (Zama)",
+      "required": false
+    },
+    "VITE_RELAYER_ENDPOINT": {
+      "description": "FHEVM Relayer endpoint (Zama)",
+      "example": "https://relayer.testnet.zama.cloud"
+    }
+  },
+  "buildSettings": {
+    "buildCommand": "cd examples/nextjs-app && pnpm build",
+    "outputDirectory": "examples/nextjs-app/dist"
+  }
+}
