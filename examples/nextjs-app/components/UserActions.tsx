@@ -211,13 +211,35 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
             />
             <span className="ml-2 text-sm text-gray-700 bg-gray-100 px-2 py-1 rounded">Balance: {balance.toFixed(4)} ETH</span>
           </div>
-<Button
-  onClick={onSubmitBid}
-  disabled={isLoading || !bid}
-  className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
->
-  {isLoading ? 'Encrypting & Submitting...' : 'Submit My Encrypted Bid'}
-</Button>
+          <Button
+            onClick={async () => {
+              // Call real contract submitBid with signer (requires MetaMask signature)
+              if (!signer) {
+                alert('Please connect wallet first');
+                return;
+              }
+              try {
+                // First call the hook's submit with encrypted bid
+                const bidValue = parseInt(bid, 10);
+                if (isNaN(bidValue) || bidValue < MIN_BID || bidValue > MAX_BID) {
+                  alert(`Please enter a valid bid between $${MIN_BID} and $${MAX_BID}.`);
+                  return;
+                }
+                
+                // Call onSubmitBid from useAuction (handles encryption)
+                // This triggers the workflow:
+                // 1. FHEVM encryption
+                // 2. Contract.submitBid() call via submit() → MetaMask signature
+                await onSubmitBid();
+              } catch (e: any) {
+                alert('Bid submission failed: ' + (e.message || e));
+              }
+            }}
+            disabled={isLoading || !bid}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {isLoading ? 'Encrypting & Submitting...' : 'Submit My Encrypted Bid'}
+          </Button>
         </div>
       );
     case UserState.BID_SUBMITTED:
