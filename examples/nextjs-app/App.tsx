@@ -102,9 +102,6 @@ const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
                       <WinnerDisplay 
                         winner={winner || undefined}
                         targetPrice={randomTargetPrice}
-                        contractAddress={process.env.NEXT_PUBLIC_AUCTION_CONTRACT || ''}
-                        abi={[]}
-                        signer={undefined} // TODO: Pass actual signer from UserActions or context
                       />
                     )}
                   </div>
