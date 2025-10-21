@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSubmitEncryptedBid } from '../../../packages/fhevm-sdk/react/useSubmitEncryptedBid';
-import { useEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
+import { getEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
 import { ethers } from 'ethers';
 import { UserState, Product } from '../types';
 import { MIN_BID, MAX_BID } from '../constants';
@@ -32,7 +32,7 @@ const Button: React.FC<{ onClick: () => void; children: React.ReactNode; disable
 
 const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, product }) => {
   console.log("UserActions props:", { userState, auctionEnded, bid, isLoading, product });
-  const { encrypt } = useEncryptBid();
+  const { encrypt } = getEncryptBid();  // Non-hook function - no context needed!
   const chainId = 31337; // veya aktif ağ
   const contractAddress = deployedContracts[chainId]?.MockAuction?.address || '';
   const abi = deployedContracts[chainId]?.MockAuction?.abi || [];
