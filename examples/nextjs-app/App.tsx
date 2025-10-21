@@ -12,27 +12,27 @@ import ProductSelector from './components/ProductSelector';
 const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
-  // Initialize auction hook only when product is selected
-  // This prevents hook context errors before SDK is ready
-  const auctionHook = selectedProduct ? useAuction(selectedProduct) : null;
+  // ALWAYS call the hook - never conditionally!
+  // The hook handles null product internally
+  const auctionHook = useAuction(selectedProduct);
   
-  // Use optional chaining with sensible defaults
-  const auctionState = auctionHook?.auctionState ?? AuctionState.LIVE;
-  const userState = auctionHook?.userState ?? UserState.CAN_JOIN;
-  const timeLeft = auctionHook?.timeLeft ?? 0;
-  const participants = auctionHook?.participants ?? [];
-  const winner = auctionHook?.winner ?? null;
-  const bid = auctionHook?.bid ?? '';
-  const setBid = auctionHook?.setBid ?? (() => {});
-  const setUserState = auctionHook?.setUserState ?? (() => {});
-  const isLoading = auctionHook?.isLoading ?? false;
-  const statusMessage = auctionHook?.statusMessage ?? '';
-  const randomTargetPrice = auctionHook?.randomTargetPrice ?? 0;
-  const joinAuction = auctionHook?.joinAuction ?? (() => {});
-  const submitBid = auctionHook?.submitBid ?? (() => {});
-  const revealWinner = auctionHook?.revealWinner ?? (() => {});
-  const simulateFullAuction = auctionHook?.simulateFullAuction ?? (() => {});
-  const resetAuction = auctionHook?.resetAuction ?? (() => {});
+  // Destructure directly - hook always returns all values
+  const auctionState = auctionHook.auctionState;
+  const userState = auctionHook.userState;
+  const timeLeft = auctionHook.timeLeft;
+  const participants = auctionHook.participants;
+  const winner = auctionHook.winner;
+  const bid = auctionHook.bid;
+  const setBid = auctionHook.setBid;
+  const setUserState = auctionHook.setUserState;
+  const isLoading = auctionHook.isLoading;
+  const statusMessage = auctionHook.statusMessage;
+  const randomTargetPrice = auctionHook.randomTargetPrice;
+  const joinAuction = auctionHook.joinAuction;
+  const submitBid = auctionHook.submitBid;
+  const revealWinner = auctionHook.revealWinner;
+  const simulateFullAuction = auctionHook.simulateFullAuction;
+  const resetAuction = auctionHook.resetAuction;
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
