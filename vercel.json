@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && cd examples/nextjs-app && pnpm install && pnpm build",
+  "buildCommand": "pnpm build",
   "outputDirectory": "examples/nextjs-app/dist",
   "framework": "vite"
 }
