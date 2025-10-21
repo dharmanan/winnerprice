@@ -110,7 +110,15 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   }
 
   const joinOnchain = async () => {
-    if (!signer || !contractAddress || !abi.length) return;
+    if (!walletConnected) {
+      alert('Please connect your wallet first');
+      return;
+    }
+    if (!signer || !contractAddress || !abi.length) {
+      alert('Wallet or contract not ready. Please try again.');
+      return;
+    }
+    
     try {
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const tx = await contract.join({ value: ethers.utils.parseEther(product.entryFee.toString()) });
