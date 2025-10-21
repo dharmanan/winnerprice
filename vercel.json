@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm build",
+  "buildCommand": "pwd && ls -la && pnpm install && pwd && pnpm build && pwd && ls -la examples/nextjs-app/dist 2>&1 || find . -name dist -type d",
   "outputDirectory": "examples/nextjs-app/dist",
   "framework": "vite"
 }
