@@ -31,7 +31,6 @@ const Button: React.FC<{ onClick: () => void; children: React.ReactNode; disable
 );
 
 const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, product }) => {
-  console.log("UserActions props:", { userState, auctionEnded, bid, isLoading, product });
   const { encrypt } = getEncryptBid();  // Non-hook function - no context needed!
   const chainId = 31337; // veya aktif ağ
   const contractAddress = deployedContracts[chainId]?.MockAuction?.address || '';
@@ -68,8 +67,6 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   useEffect(() => {
     const interval = setInterval(() => {
       setSdkReady(!!window.relayerSDK);
-      console.log("[DEBUG] window.relayerSDK:", window.relayerSDK);
-      console.log("[DEBUG] sdkReady:", !!window.relayerSDK);
     }, 300);
     return () => clearInterval(interval);
   }, []);
@@ -213,17 +210,13 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
           </div>
           <Button
             onClick={async () => {
-              console.log("[DEBUG] Bid butonuna basıldı");
               try {
                 if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
-                console.log("[DEBUG] Bid işlemi başlıyor, SDK hazır");
                 const encryptedBid = await encrypt(Number(bid));
-                console.log("[DEBUG] Bid şifrelendi:", encryptedBid);
                 await submit(encryptedBid);
-                console.log("[DEBUG] Bid onchain gönderildi");
                 onSubmitBid();
               } catch (e: any) {
-                console.error("[DEBUG] Bid işlem hatası:", e);
+                console.error('Bid submission error:', e);
                 alert('Encryption/onchain failed: ' + e.message);
               }
             }}
