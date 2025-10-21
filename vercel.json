@@ -1,6 +1,5 @@
 {
   "buildCommand": "cd examples/nextjs-app && pnpm install && pnpm build",
   "outputDirectory": "examples/nextjs-app/dist",
-  "framework": "vite",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "framework": "vite"
 }
