@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useFHEVMRelayer } from '../../packages/fhevm-sdk/react/useFHEVMRelayer';
 import { useAuction } from './hooks/useAuction';
 import { AuctionState, UserState, Product } from './types';
 import { PRODUCTS } from './constants';
@@ -10,30 +9,30 @@ import Header from './components/Header';
 import ProductDisplay from './components/ProductDisplay';
 import ProductSelector from './components/ProductSelector';
 
-const App: React.FC = () => {
-  // FHEVM Relayer entegrasyonu
-  const { sdk, loading, error } = useFHEVMRelayer();
+const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
-  // Only call useAuction if product selected (to avoid hook context issues)
+  // Initialize auction hook only when product is selected
+  // This prevents hook context errors before SDK is ready
   const auctionHook = selectedProduct ? useAuction(selectedProduct) : null;
   
-  const auctionState = auctionHook?.auctionState || AuctionState.LIVE;
-  const userState = auctionHook?.userState || UserState.CAN_JOIN;
-  const timeLeft = auctionHook?.timeLeft || 0;
-  const participants = auctionHook?.participants || [];
-  const winner = auctionHook?.winner || null;
-  const bid = auctionHook?.bid || '';
-  const setBid = auctionHook?.setBid || (() => {});
-  const setUserState = auctionHook?.setUserState || (() => {});
-  const isLoading = auctionHook?.isLoading || false;
-  const statusMessage = auctionHook?.statusMessage || '';
-  const randomTargetPrice = auctionHook?.randomTargetPrice || 0;
-  const joinAuction = auctionHook?.joinAuction || (() => {});
-  const submitBid = auctionHook?.submitBid || (() => {});
-  const revealWinner = auctionHook?.revealWinner || (() => {});
-  const simulateFullAuction = auctionHook?.simulateFullAuction || (() => {});
-  const resetAuction = auctionHook?.resetAuction || (() => {});
+  // Use optional chaining with sensible defaults
+  const auctionState = auctionHook?.auctionState ?? AuctionState.LIVE;
+  const userState = auctionHook?.userState ?? UserState.CAN_JOIN;
+  const timeLeft = auctionHook?.timeLeft ?? 0;
+  const participants = auctionHook?.participants ?? [];
+  const winner = auctionHook?.winner ?? null;
+  const bid = auctionHook?.bid ?? '';
+  const setBid = auctionHook?.setBid ?? (() => {});
+  const setUserState = auctionHook?.setUserState ?? (() => {});
+  const isLoading = auctionHook?.isLoading ?? false;
+  const statusMessage = auctionHook?.statusMessage ?? '';
+  const randomTargetPrice = auctionHook?.randomTargetPrice ?? 0;
+  const joinAuction = auctionHook?.joinAuction ?? (() => {});
+  const submitBid = auctionHook?.submitBid ?? (() => {});
+  const revealWinner = auctionHook?.revealWinner ?? (() => {});
+  const simulateFullAuction = auctionHook?.simulateFullAuction ?? (() => {});
+  const resetAuction = auctionHook?.resetAuction ?? (() => {});
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
@@ -43,9 +42,10 @@ const App: React.FC = () => {
     setSelectedProduct(null);
   }
 
-  // Relayer yükleniyor veya hata varsa ekrana bilgi ver
-  if (loading) return <div className="text-center mt-12">FHEVM Relayer yükleniyor...</div>;
-  if (error) return <div className="text-center mt-12 text-red-600">Relayer hatası: {error}</div>;
+  // SDK hazır değilse yükleniyor göster (AppWrapper tarafından yönetiliyor)
+  if (!sdkReady) {
+    return <div className="text-center mt-12">FHEVM Relayer yükleniyor...</div>;
+  }
 
   return (
     <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
