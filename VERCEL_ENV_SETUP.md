@@ -1,17 +1,24 @@
 # Vercel Environment Variables Setup
 
+# Vercel Environment Variables Setup
+
 ## Vercel Dashboard'da şu variables'ları ekle:
 
-### Production Environment Variables
+### FHEVM Relayer Configuration (REQUIRED)
+
+```
+NEXT_PUBLIC_RELAYER_ENDPOINT=https://relayer.testnet.zama.cloud
+NEXT_PUBLIC_RELAYER_API_KEY=DEMO_API_KEY
+NEXT_PUBLIC_RELAYER_PUBLIC_KEY=0x047f04b2a7bbf9084c7f1a6e7e8c8a5a8d1f5e6f6b2b4d8c3f1a2b7a6e7f8b9c2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8
+NEXT_PUBLIC_RELAYER_PUBLIC_KEY_ID=sepolia-0.1
+```
+
+### Optional Wallet Variables
 
 ```
 NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_key_here
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
 ```
-
-### Optional (defaults work if not set)
-- `NEXT_PUBLIC_ALCHEMY_API_KEY`: Alchemy API key for blockchain RPC
-- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`: WalletConnect project ID for wallet connection
 
 ## Nasıl Vercel'e ekleyelim:
 
