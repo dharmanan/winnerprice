@@ -17,14 +17,11 @@ function AppWrapper() {
     // Initialize SDK - check if relayer SDK is loaded
     try {
       if (typeof window !== 'undefined' && window.relayerSDK) {
-        console.log('✅ SDK already available, initializing...');
         setSdkReady(true);
       } else {
-        console.log('⏳ Waiting for SDK to load...');
         // Wait for SDK to load
         const checkInterval = setInterval(() => {
           if (typeof window !== 'undefined' && window.relayerSDK) {
-            console.log('✅ SDK loaded successfully');
             setSdkReady(true);
             clearInterval(checkInterval);
           }
@@ -33,7 +30,6 @@ function AppWrapper() {
         // Timeout after 5 seconds
         const timeout = setTimeout(() => {
           clearInterval(checkInterval);
-          console.warn('⚠️ SDK not loaded after 5s, continuing anyway');
           setSdkReady(true); // Continue anyway
         }, 5000);
 
@@ -43,7 +39,6 @@ function AppWrapper() {
         };
       }
     } catch (err) {
-      console.error('❌ SDK initialization error:', err);
       setSdkError(err instanceof Error ? err.message : 'Unknown error');
       setSdkReady(true); // Continue to avoid stuck loading
     }

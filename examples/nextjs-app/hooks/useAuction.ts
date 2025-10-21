@@ -7,7 +7,6 @@ const performFHEEncryption = async (value: number): Promise<any> => {
     try {
         const win = typeof window !== 'undefined' ? (window as any) : undefined;
         if (!win || !win.relayerSDK) {
-            console.warn('[AUCTION] SDK not available, using mock encryption');
             return `0x_mock_${value}_${Math.random().toString(16).slice(2)}`;
         }
 
@@ -39,10 +38,8 @@ const performFHEEncryption = async (value: number): Promise<any> => {
         const inputWithBid = encryptedInput.add256(BigInt(value));
         const encrypted = await inputWithBid.encrypt();
         
-        console.log('[AUCTION] ✅ Bid successfully encrypted with FHEVM');
         return encrypted;
     } catch (err) {
-        console.warn('[AUCTION] Real encryption failed, using mock:', err);
         return `0x_mock_${value}_${Math.random().toString(16).slice(2)}`;
     }
 };
@@ -148,16 +145,12 @@ export const useAuction = (product: Product | null) => {
 
         setIsLoading(true);
         setStatusMessage('💳 Processing transaction...');
-        console.log('[AUCTION] Starting submitBid - bidValue:', bidValue);
         await new Promise(res => setTimeout(res, 500));
         
         setStatusMessage('🔒 Encrypting your bid with FHEVM...');
-        console.log('[AUCTION] Encrypting bid...');
         const encryptedBid = await encrypt(bidValue);
-        console.log('[AUCTION] Encrypted bid created:', typeof encryptedBid);
         
         setStatusMessage('⛓️  Sending encrypted bid to blockchain...');
-        console.log('[AUCTION] Would call contract.submitBid() here with signer');
         
         // NOTE: In production, this would call the actual contract via useSubmitEncryptedBid
         // The real flow requires:
@@ -177,7 +170,6 @@ export const useAuction = (product: Product | null) => {
         setParticipants(prev => [...prev, newParticipant]);
         setUserState(UserState.BID_SUBMITTED);
         setStatusMessage('✅ Bid submitted successfully!');
-        console.log('[AUCTION] submitBid complete - participant added');
         
         // Clear message after 2 seconds
         setTimeout(() => setStatusMessage(''), 2000);
@@ -260,9 +252,7 @@ export const useAuction = (product: Product | null) => {
                 // Generate truly random bid between MIN_BID and MAX_BID
                 const randomBidValue = Math.floor(Math.random() * (MAX_BID - MIN_BID + 1)) + MIN_BID;
 
-                console.log(`[SIMULATE] Bid ${i + 1}/${bidsToSimulate}: $${randomBidValue}`);
-
-                // ✅ GERÇEK FHEVM ŞİFRELEMESİ YAPILIYOR
+                // Real FHEVM encryption
                 const encryptedBid = await encrypt(randomBidValue);
                 
                 simulatedBids.push({
@@ -272,12 +262,10 @@ export const useAuction = (product: Product | null) => {
                 });
 
                 setStatusMessage(`✅ Bid ${i + 1}/${bidsToSimulate} encrypted - Writing to blockchain...`);
-                console.log(`[SIMULATE] ✅ Bid ${i + 1} encrypted and added`);
                 
                 // Add to participants in real-time so user sees progress
                 setParticipants(prev => [...prev, simulatedBids[i]]);
             } catch (err) {
-                console.error(`[SIMULATE] ❌ Error encrypting bid ${i + 1}:`, err);
                 setStatusMessage(`❌ Error processing bid ${i + 1}, continuing...`);
                 // Continue with other bids
                 await new Promise(res => setTimeout(res, 500));
@@ -287,8 +275,6 @@ export const useAuction = (product: Product | null) => {
             await new Promise(res => setTimeout(res, 300));
         }
         
-        console.log(`[SIMULATE] Total simulated bids: ${simulatedBids.length}`);
-        
         setAuctionState(AuctionState.ENDED);
         setTimeLeft(0);
         setStatusMessage('✨ Simulation complete! Auction ended. Click "Reveal Winner" to see results.');
@@ -296,8 +282,6 @@ export const useAuction = (product: Product | null) => {
         // Clear message after 5 seconds
         setTimeout(() => setStatusMessage(''), 5000);
         setIsLoading(false);
-
-        console.log('[SIMULATE] ✅ Simulation complete!');
     }, [participants.length, encrypt, product]);
 
     return {
