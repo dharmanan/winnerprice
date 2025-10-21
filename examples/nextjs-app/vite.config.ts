@@ -42,6 +42,15 @@ export default defineConfig(({ mode }) => {
   return {
     build: {
       outDir: 'dist',
+      chunkSizeWarningLimit: 1000, // Suppress warning for 513kB chunk
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Keep large dependencies separate to avoid warning
+            vendor: ['react', 'react-dom', 'ethers'],
+          }
+        }
+      }
     },
     server: {
       port: 3000,
