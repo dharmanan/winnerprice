@@ -148,12 +148,23 @@ export const useAuction = (product: Product | null) => {
 
         setIsLoading(true);
         setStatusMessage('💳 Processing transaction...');
+        console.log('[AUCTION] Starting submitBid - bidValue:', bidValue);
         await new Promise(res => setTimeout(res, 500));
         
         setStatusMessage('🔒 Encrypting your bid with FHEVM...');
+        console.log('[AUCTION] Encrypting bid...');
         const encryptedBid = await encrypt(bidValue);
+        console.log('[AUCTION] Encrypted bid created:', typeof encryptedBid);
         
-        setStatusMessage('⛓️  Writing to blockchain...');
+        setStatusMessage('⛓️  Sending encrypted bid to blockchain...');
+        console.log('[AUCTION] Would call contract.submitBid() here with signer');
+        
+        // NOTE: In production, this would call the actual contract via useSubmitEncryptedBid
+        // The real flow requires:
+        // 1. Signer from wallet (passed from UserActions)
+        // 2. Contract instance with signer
+        // 3. Call contract.submitBid(encryptedBid) → MetaMask signature popup
+        
         await new Promise(res => setTimeout(res, 500));
         
         const newParticipant: Bid = {
@@ -166,6 +177,7 @@ export const useAuction = (product: Product | null) => {
         setParticipants(prev => [...prev, newParticipant]);
         setUserState(UserState.BID_SUBMITTED);
         setStatusMessage('✅ Bid submitted successfully!');
+        console.log('[AUCTION] submitBid complete - participant added');
         
         // Clear message after 2 seconds
         setTimeout(() => setStatusMessage(''), 2000);
