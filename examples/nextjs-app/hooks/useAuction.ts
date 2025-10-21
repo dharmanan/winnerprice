@@ -1,16 +1,53 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AuctionState, UserState, type Bid, type Winner, type Product } from '../types';
 import { AUCTION_DURATION_SECONDS, MAX_PARTICIPANTS, MIN_BID, MAX_BID } from '../constants';
-import { useEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
 
-// --- FHEVM Encryption (Mock Fallback for Testing) ---
-// Production: Real SDK hooks used. This is fallback only.
-const useMockEncrypt = () => ({
-    encrypt: async (value: number) => {
-        await new Promise(res => setTimeout(res, 300));
+// --- FHEVM Encryption (Direct SDK usage - no hooks!) ---
+const performFHEEncryption = async (value: number): Promise<any> => {
+    try {
+        const win = typeof window !== 'undefined' ? (window as any) : undefined;
+        if (!win || !win.relayerSDK) {
+            console.warn('[AUCTION] SDK not available, using mock encryption');
+            return `0x_mock_${value}_${Math.random().toString(16).slice(2)}`;
+        }
+
+        const relayerSDK = win.relayerSDK;
+        
+        // Initialize SDK
+        try {
+            await relayerSDK.initSDK();
+        } catch (e) {
+            // Already initialized
+        }
+        
+        const config = relayerSDK.SepoliaConfig;
+        const instance = await relayerSDK.createInstance(config);
+        
+        const contractAddress = config.verifyingContractAddressDecryption;
+        let userAddress = '0x0000000000000000000000000000000000000000';
+        
+        if ((win as any).ethereum) {
+            try {
+                const accounts = await (win as any).ethereum.request({ method: 'eth_accounts' });
+                if (accounts && accounts.length > 0) userAddress = accounts[0];
+            } catch (e) {
+                // Continue with default
+            }
+        }
+        
+        const encryptedInput = instance.createEncryptedInput(contractAddress, userAddress);
+        const inputWithBid = encryptedInput.add256(BigInt(value));
+        const encrypted = await inputWithBid.encrypt();
+        
+        console.log('[AUCTION] ✅ Bid successfully encrypted with FHEVM');
+        return encrypted;
+    } catch (err) {
+        console.warn('[AUCTION] Real encryption failed, using mock:', err);
         return `0x_mock_${value}_${Math.random().toString(16).slice(2)}`;
     }
-});
+};
+
+// --- FHEVM Encryption (Mock Fallback for Testing) ---
 
 const useDecrypt = () => ({
     decrypt: async (encryptedValue: string | object) => {
@@ -49,20 +86,10 @@ export const useAuction = (product: Product | null) => {
         Math.floor(Math.random() * (MAX_BID - MIN_BID + 1)) + MIN_BID
     );
 
-    // ✅ Real FHEVM SDK - useEncryptBid hook
-    const { encrypt: realEncrypt } = useEncryptBid();
-    const { decrypt } = useDecrypt();
-    
-    // Try real encryption first, fallback to mock if SDK not ready
+    // ✅ Use direct function (no hooks!) to avoid React hook ordering issues
     const encrypt = useCallback(async (value: number) => {
-        try {
-            return await realEncrypt(value);
-        } catch (err) {
-            console.warn('[AUCTION] Real encryption failed, using mock:', err);
-            const mockEncrypted = await useMockEncrypt().encrypt(value);
-            return mockEncrypted;
-        }
-    }, [realEncrypt]);
+        return performFHEEncryption(value);
+    }, []);
     
     const resetAuction = useCallback(() => {
         setAuctionState(AuctionState.LIVE);
