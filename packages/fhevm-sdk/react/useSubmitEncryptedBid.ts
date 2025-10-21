@@ -1,7 +1,12 @@
 // React hook for submitting encrypted bid onchain
-import { useCallback, useRef } from 'react';
 import { submitEncryptedBid } from '../core/contract';
 import { ethers } from 'ethers';
+
+// Store signer externally to avoid React hook issues
+let storedSigner: ethers.Signer | undefined = undefined;
+let storedContractAddress = '';
+let storedAbi: any = [];
+let storedEntryFee = 0;
 
 export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }: {
   contractAddress: string;
@@ -9,16 +14,24 @@ export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }
   entryFee: number;
   signer: ethers.Signer | undefined;
 }) {
-  // Store signer in ref to avoid dependency issues
-  const signerRef = useRef(signer);
-  signerRef.current = signer;
+  // Update stored values without React hooks
+  storedSigner = signer;
+  storedContractAddress = contractAddress;
+  storedAbi = abi;
+  storedEntryFee = entryFee;
 
-  const submit = useCallback(async (encryptedBid: string) => {
-    if (!signerRef.current) {
+  const submit = async (encryptedBid: string) => {
+    if (!storedSigner) {
       throw new Error('Signer not available');
     }
-    return await submitEncryptedBid({ contractAddress, abi, encryptedBid, entryFee, signer: signerRef.current });
-  }, [contractAddress, abi, entryFee]);
+    return await submitEncryptedBid({ 
+      contractAddress: storedContractAddress, 
+      abi: storedAbi, 
+      encryptedBid, 
+      entryFee: storedEntryFee, 
+      signer: storedSigner 
+    });
+  };
 
   return { submit };
 }
@@ -26,3 +39,4 @@ export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }
 // Usage:
 // const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer });
 // await submit(encryptedBid);
+
