@@ -5,10 +5,10 @@ declare var window: any;
 // React hook for FHEVM bid encryption
 import { useCallback } from 'react';
 import { encryptBid } from '../core/encrypt';
-import { useFHEVMRelayer } from './useFHEVMRelayer';
 
 export function useEncryptBid() {
-  const { sdk, loading, error } = useFHEVMRelayer();
+  // Not calling useFHEVMRelayer here - SDK is already globally loaded
+  // This hook just wraps the encryption logic with useCallback
 
   const encrypt = useCallback(async (value: number) => {
     try {
@@ -87,7 +87,7 @@ export function useEncryptBid() {
     }
   }, []);
 
-  return { encrypt, loading, error };
+  return { encrypt };
 }
 
 // Usage:
