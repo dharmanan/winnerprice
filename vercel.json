@@ -1,5 +1,5 @@
 {
-  "buildCommand": "echo 'PWD:' && pwd && echo 'LS ROOT:' && ls -la && pnpm install && rm -rf examples/nextjs-app/dist && pnpm build && echo 'PWD AFTER BUILD:' && pwd && echo 'FINDING DIST:' && find . -name dist -type d",
-  "outputDirectory": "examples/nextjs-app/dist",
+  "buildCommand": "set -e && pnpm install && rm -rf examples/nextjs-app/dist examples/nextjs-app/.next && pnpm build && echo '✓ Build complete'",
+  "outputDirectory": "dist",
   "framework": "vite"
 }
