@@ -1,5 +1,5 @@
 // React hook for submitting encrypted bid onchain
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { submitEncryptedBid } from '../core/contract';
 import { ethers } from 'ethers';
 
@@ -9,12 +9,16 @@ export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }
   entryFee: number;
   signer: ethers.Signer | undefined;
 }) {
+  // Store signer in ref to avoid dependency issues
+  const signerRef = useRef(signer);
+  signerRef.current = signer;
+
   const submit = useCallback(async (encryptedBid: string) => {
-    if (!signer) {
+    if (!signerRef.current) {
       throw new Error('Signer not available');
     }
-    return await submitEncryptedBid({ contractAddress, abi, encryptedBid, entryFee, signer });
-  }, [contractAddress, abi, entryFee, signer]);
+    return await submitEncryptedBid({ contractAddress, abi, encryptedBid, entryFee, signer: signerRef.current });
+  }, [contractAddress, abi, entryFee]);
 
   return { submit };
 }
