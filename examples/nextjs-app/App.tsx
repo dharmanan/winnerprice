@@ -15,24 +15,25 @@ const App: React.FC = () => {
   const { sdk, loading, error } = useFHEVMRelayer();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
-  const {
-    auctionState,
-    userState,
-    timeLeft,
-    participants,
-    winner,
-    bid,
-    setBid,
-    setUserState,
-    isLoading,
-    statusMessage,
-    randomTargetPrice,
-    joinAuction,
-    submitBid,
-    revealWinner,
-    simulateFullAuction,
-    resetAuction,
-  } = useAuction(selectedProduct);
+  // Only call useAuction if product selected (to avoid hook context issues)
+  const auctionHook = selectedProduct ? useAuction(selectedProduct) : null;
+  
+  const auctionState = auctionHook?.auctionState || AuctionState.LIVE;
+  const userState = auctionHook?.userState || UserState.CAN_JOIN;
+  const timeLeft = auctionHook?.timeLeft || 0;
+  const participants = auctionHook?.participants || [];
+  const winner = auctionHook?.winner || null;
+  const bid = auctionHook?.bid || '';
+  const setBid = auctionHook?.setBid || (() => {});
+  const setUserState = auctionHook?.setUserState || (() => {});
+  const isLoading = auctionHook?.isLoading || false;
+  const statusMessage = auctionHook?.statusMessage || '';
+  const randomTargetPrice = auctionHook?.randomTargetPrice || 0;
+  const joinAuction = auctionHook?.joinAuction || (() => {});
+  const submitBid = auctionHook?.submitBid || (() => {});
+  const revealWinner = auctionHook?.revealWinner || (() => {});
+  const simulateFullAuction = auctionHook?.simulateFullAuction || (() => {});
+  const resetAuction = auctionHook?.resetAuction || (() => {});
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
