@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSubmitEncryptedBid } from '../../../packages/fhevm-sdk/react/useSubmitEncryptedBid';
+import { useEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
 import { ethers } from 'ethers';
 import { UserState, Product } from '../types';
 import { MIN_BID, MAX_BID } from '../constants';
@@ -31,7 +32,7 @@ const Button: React.FC<{ onClick: () => void; children: React.ReactNode; disable
 
 const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, product }) => {
   console.log("UserActions props:", { userState, auctionEnded, bid, isLoading, product });
-  // Encryption is handled in useAuction hook, no need to duplicate here
+  const { encrypt } = useEncryptBid();
   const chainId = 31337; // veya aktif ağ
   const contractAddress = deployedContracts[chainId]?.MockAuction?.address || '';
   const abi = deployedContracts[chainId]?.MockAuction?.abi || [];
@@ -41,8 +42,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   const [walletConnected, setWalletConnected] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
 
-  // ALWAYS call hook - hook handles undefined signer internally
-  const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee: product.entryFee, signer: signer || undefined });
+  const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee: product.entryFee, signer: signer as ethers.providers.JsonRpcSigner });
 
   useEffect(() => {
     async function getSignerAndBalance() {
@@ -213,26 +213,18 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
           </div>
           <Button
             onClick={async () => {
-              // Call real contract submitBid with signer (requires MetaMask signature)
-              if (!signer) {
-                alert('Please connect wallet first');
-                return;
-              }
+              console.log("[DEBUG] Bid butonuna basıldı");
               try {
-                // First call the hook's submit with encrypted bid
-                const bidValue = parseInt(bid, 10);
-                if (isNaN(bidValue) || bidValue < MIN_BID || bidValue > MAX_BID) {
-                  alert(`Please enter a valid bid between $${MIN_BID} and $${MAX_BID}.`);
-                  return;
-                }
-                
-                // Call onSubmitBid from useAuction (handles encryption)
-                // This triggers the workflow:
-                // 1. FHEVM encryption
-                // 2. Contract.submitBid() call via submit() → MetaMask signature
-                await onSubmitBid();
+                if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
+                console.log("[DEBUG] Bid işlemi başlıyor, SDK hazır");
+                const encryptedBid = await encrypt(Number(bid));
+                console.log("[DEBUG] Bid şifrelendi:", encryptedBid);
+                await submit(encryptedBid);
+                console.log("[DEBUG] Bid onchain gönderildi");
+                onSubmitBid();
               } catch (e: any) {
-                alert('Bid submission failed: ' + (e.message || e));
+                console.error("[DEBUG] Bid işlem hatası:", e);
+                alert('Encryption/onchain failed: ' + e.message);
               }
             }}
             disabled={isLoading || !bid}
