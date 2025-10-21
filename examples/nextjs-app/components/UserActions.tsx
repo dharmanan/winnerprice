@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
 import { useSubmitEncryptedBid } from '../../../packages/fhevm-sdk/react/useSubmitEncryptedBid';
 import { ethers } from 'ethers';
 import { UserState, Product } from '../types';
@@ -32,7 +31,7 @@ const Button: React.FC<{ onClick: () => void; children: React.ReactNode; disable
 
 const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, product }) => {
   console.log("UserActions props:", { userState, auctionEnded, bid, isLoading, product });
-  const { encrypt, loading: encryptLoading, error: encryptError } = useEncryptBid();
+  // Encryption is handled in useAuction hook, no need to duplicate here
   const chainId = 31337; // veya aktif ağ
   const contractAddress = deployedContracts[chainId]?.MockAuction?.address || '';
   const abi = deployedContracts[chainId]?.MockAuction?.abi || [];
@@ -203,30 +202,12 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
             />
             <span className="ml-2 text-sm text-gray-700 bg-gray-100 px-2 py-1 rounded">Balance: {balance.toFixed(4)} ETH</span>
           </div>
-          {(!sdkReady || encryptLoading) && (
-  <div className="text-blue-600 mt-2">FHEVM SDK yükleniyor, lütfen bekleyin...</div>
-)}
-{encryptError && <div className="text-red-600 mt-2">Encryption error: {encryptError}</div>}
 <Button
-  onClick={async () => {
-    console.log("[DEBUG] Bid butonuna basıldı");
-    try {
-      if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
-      console.log("[DEBUG] Bid işlemi başlıyor, SDK hazır");
-      const encryptedBid = await encrypt(Number(bid));
-      console.log("[DEBUG] Bid şifrelendi:", encryptedBid);
-      await submit(encryptedBid);
-      console.log("[DEBUG] Bid onchain gönderildi");
-      onSubmitBid();
-    } catch (e: any) {
-      console.error("[DEBUG] Bid işlem hatası:", e);
-      alert('Encryption/onchain failed: ' + e.message);
-    }
-  }}
-  disabled={isLoading || !bid || encryptLoading || !sdkReady}
+  onClick={onSubmitBid}
+  disabled={isLoading || !bid}
   className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
 >
-  {isLoading || encryptLoading ? 'Encrypting & Submitting...' : 'Submit My Encrypted Bid'}
+  {isLoading ? 'Encrypting & Submitting...' : 'Submit My Encrypted Bid'}
 </Button>
         </div>
       );
