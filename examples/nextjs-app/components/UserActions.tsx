@@ -41,10 +41,13 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   const [walletConnected, setWalletConnected] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
 
+  // ALWAYS call hook - hook handles undefined signer internally
+  const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee: product.entryFee, signer: signer || undefined });
+
   useEffect(() => {
     async function getSignerAndBalance() {
       if (typeof window !== 'undefined' && (window as any).ethereum) {
-  const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+        const provider = new ethers.providers.Web3Provider((window as any).ethereum);
         try {
           await provider.send('eth_requestAccounts', []);
           const signerObj = await provider.getSigner();
@@ -70,8 +73,6 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
     }, 300);
     return () => clearInterval(interval);
   }, []);
-
-  const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee: product.entryFee, signer: signer as ethers.providers.JsonRpcSigner });
   if (!walletConnected) {
     return (
       <div className="text-center">

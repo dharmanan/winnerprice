@@ -7,9 +7,12 @@ export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }
   contractAddress: string;
   abi: any;
   entryFee: number;
-  signer: ethers.Signer;
+  signer: ethers.Signer | undefined;
 }) {
   const submit = useCallback(async (encryptedBid: string) => {
+    if (!signer) {
+      throw new Error('Signer not available');
+    }
     return await submitEncryptedBid({ contractAddress, abi, encryptedBid, entryFee, signer });
   }, [contractAddress, abi, entryFee, signer]);
 
