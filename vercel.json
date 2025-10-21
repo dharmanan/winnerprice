@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bash vercel-build.sh",
+  "buildCommand": "pnpm install && cd examples/nextjs-app && pnpm install && pnpm build",
   "outputDirectory": "examples/nextjs-app/dist",
   "framework": "vite"
 }
