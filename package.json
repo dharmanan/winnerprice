@@ -12,6 +12,7 @@
     "examples/*"
   ],
   "scripts": {
+    "build": "pnpm --filter ./examples/nextjs-app build",
     "chain": "pnpm hardhat:chain",
     "compile": "pnpm hardhat:compile",
     "deploy:localhost": "pnpm hardhat:deploy && pnpm generate",
