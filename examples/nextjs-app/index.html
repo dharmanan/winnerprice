@@ -6,14 +6,8 @@
     <title>QuantumPrice - Secret Price Auction</title>
     <!-- Load Relayer SDK FIRST -->
     <script src="/relayer-sdk-js.umd.js" defer></script>
-    <!-- Tailwind from CDN (dev only) - will be removed in production build -->
-    <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.tailwindcss.com';
-        document.head.appendChild(script);
-      }
-    </script>
+    <!-- Tailwind from CDN (fallback for browsers without built-in CSS) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: load Inter BEFORE any CSS rules to avoid PostCSS @import order errors -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstapi.com" crossorigin>
