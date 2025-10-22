@@ -11,6 +11,7 @@ interface UserActionsProps {
   auctionEnded: boolean;
   bid: string;
   isLoading: boolean;
+  statusMessage?: string;
   setBid: (value: string) => void;
   setUserState: (state: UserState) => void;
   onJoin: () => void;
@@ -30,7 +31,7 @@ const Button: React.FC<{ onClick: () => void; children: React.ReactNode; disable
   </button>
 );
 
-const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, product }) => {
+const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid, setBid, setUserState, onJoin, onSubmitBid, onReveal, onSimulate, isLoading, statusMessage, product }) => {
   const { encrypt } = getEncryptBid();  // Non-hook function - no context needed!
   const chainId = 31337; // veya aktif ağ
   const contractAddress = deployedContracts[chainId]?.MockAuction?.address || '';
@@ -40,6 +41,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   const [balance, setBalance] = useState<number>(0);
   const [walletConnected, setWalletConnected] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
+  const [btnProcessing, setBtnProcessing] = useState(false);
 
   // No hook call here - use function directly when needed!
 
@@ -94,19 +96,27 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
     );
   }
 
-  if (auctionEnded) {
+    if (auctionEnded) {
     return (
       <div className="text-center">
         <h3 className="text-xl font-bold text-gray-900">Auction Has Ended!</h3>
         <p className="text-gray-600 mt-2 mb-6">The bidding period is over. Click below to see the winner.</p>
         <Button onClick={onReveal} disabled={isLoading} className="bg-green-600 hover:bg-green-700 text-white">
-          {isLoading ? 'Revealing...' : 'Reveal Winner'}
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Revealing Winner...</span>
+            </div>
+          ) : 'Reveal Winner'}
         </Button>
+        {isLoading && statusMessage && (
+          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg max-h-40 overflow-y-auto">
+            <p className="text-sm text-green-700 font-medium">{statusMessage}</p>
+          </div>
+        )}
       </div>
     );
-  }
-
-  const joinOnchain = async () => {
+  }  const joinOnchain = async () => {
     if (!walletConnected) {
       alert('Please connect your wallet first');
       return;
@@ -115,7 +125,8 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
       alert('Wallet or contract not ready. Please try again.');
       return;
     }
-    
+
+    setBtnProcessing(true);
     try {
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const tx = await contract.join({ value: ethers.utils.parseEther(product.entryFee.toString()) });
@@ -133,6 +144,8 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
         return;
       }
       alert('Onchain join failed: ' + (e.message || e));
+    } finally {
+      setBtnProcessing(false);
     }
   };
 
@@ -165,8 +178,18 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
         <div className="text-center">
           <p className="text-gray-600 mb-4">Pay the entry fee to join and place your secret bid.</p>
           <Button onClick={joinOnchain} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
-            {isLoading ? 'Processing...' : `Pay ${product.entryFee} ETH to Join`}
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Processing Payment...</span>
+              </div>
+            ) : `Pay ${product.entryFee} ETH to Join`}
           </Button>
+          {isLoading && statusMessage && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700 font-medium">{statusMessage}</p>
+            </div>
+          )}
         </div>
       );
     case UserState.CAN_BID:
@@ -199,28 +222,24 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
           </div>
           <Button
             onClick={async () => {
-              try {
-                if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
-                const encryptedBid = await encrypt(Number(bid));
-                // Use non-hook function directly (no context issues!)
-                await getSubmitEncryptedBid(
-                  contractAddress,
-                  abi,
-                  encryptedBid,
-                  product.entryFee,
-                  signer
-                );
-                onSubmitBid();
-              } catch (e: any) {
-                console.error('Bid submission error:', e);
-                alert('Encryption/onchain failed: ' + e.message);
-              }
+              // Delegate submission to the hook which manages isLoading/status
+              await onSubmitBid();
             }}
-            disabled={isLoading || !bid}
+            disabled={isLoading || btnProcessing || !bid}
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading ? 'Encrypting & Submitting...' : 'Submit My Encrypted Bid'}
+            {isLoading || btnProcessing ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Encrypting & Submitting...</span>
+              </div>
+            ) : 'Submit My Encrypted Bid'}
           </Button>
+          {isLoading && statusMessage && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700 font-medium">{statusMessage}</p>
+            </div>
+          )}
         </div>
       );
     case UserState.BID_SUBMITTED:
@@ -236,8 +255,18 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
             disabled={isLoading} 
             className="bg-orange-500 hover:bg-orange-600 text-white"
           >
-            {isLoading ? 'Simulating...' : 'Simulate Remaining Bids'}
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Simulating Bids...</span>
+              </div>
+            ) : 'Simulate Remaining Bids'}
           </Button>
+          {isLoading && statusMessage && (
+            <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg max-h-40 overflow-y-auto">
+              <p className="text-sm text-orange-700 font-medium">{statusMessage}</p>
+            </div>
+          )}
         </div>
       );
     default:
