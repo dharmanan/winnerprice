@@ -97,6 +97,7 @@ const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
                         setBid={setBid}
                         setUserState={setUserState}
                         isLoading={isLoading}
+                        statusMessage={statusMessage}
                         onJoin={joinAuction}
                         onSubmitBid={submitBid}
                         onReveal={revealWinner}

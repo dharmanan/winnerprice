@@ -131,14 +131,19 @@ export const useAuction = (product: Product | null) => {
 
     const joinAuction = async () => {
         if (!product) return;
+        if (isLoading) return; // prevent double clicks
         setIsLoading(true);
+        setStatusMessage('💳 Processing join payment...');
         await new Promise(res => setTimeout(res, 1000));
         setUserState(UserState.CAN_BID);
+        setStatusMessage('✅ Joined! You can now place your bid.');
+        setTimeout(() => setStatusMessage(''), 1500);
         setIsLoading(false);
     };
 
     const submitBid = async () => {
         if (!product) return;
+        if (isLoading) return; // prevent double submissions
         const bidValue = parseInt(bid, 10);
         if (isNaN(bidValue) || bidValue < MIN_BID || bidValue > MAX_BID) {
             alert(`Please enter a valid bid between $${MIN_BID} and $${MAX_BID}.`);
@@ -147,8 +152,8 @@ export const useAuction = (product: Product | null) => {
 
         console.log('[AUCTION] Starting submitBid - bidValue:', bidValue);
         
-        setIsLoading(true);
-        setStatusMessage('💳 Processing transaction...');
+    setIsLoading(true);
+    setStatusMessage('💳 Processing transaction...');
         await new Promise(res => setTimeout(res, 500));
         
         setStatusMessage('🔒 Encrypting your bid with FHEVM...');
@@ -179,22 +184,23 @@ export const useAuction = (product: Product | null) => {
         console.log('[AUCTION] submitBid complete - participant added');
         
         setUserState(UserState.BID_SUBMITTED);
-        setStatusMessage('✅ Bid submitted successfully!');
+    setStatusMessage('✅ Bid submitted successfully!');
         
-        // Clear message after 2 seconds
-        setTimeout(() => setStatusMessage(''), 2000);
+    // Clear message after 2 seconds
+    setTimeout(() => setStatusMessage(''), 2000);
         
-        setIsLoading(false);
+    setIsLoading(false);
         setBid('');
     };
 
     const revealWinner = async () => {
         if (!product || auctionState !== AuctionState.ENDED) return;
+        if (isLoading) return; // guard against duplicate reveal
 
         console.log('[REVEAL] Starting reveal process with', participants.length, 'participants');
         console.log('[REVEAL] Secret target price:', randomTargetPrice);
         
-        setIsLoading(true);
+    setIsLoading(true);
         setStatusMessage('🔍 Decrypting bids to find winner...');
         
         if (participants.length === 0) {
@@ -279,6 +285,7 @@ export const useAuction = (product: Product | null) => {
 
     const simulateFullAuction = async () => {
         if (!product) return;
+        if (isLoading) return; // prevent duplicate simulation
         setIsLoading(true);
         setStatusMessage('🚀 Starting simulation...');
         console.log('[SIMULATE] Starting simulation...');
