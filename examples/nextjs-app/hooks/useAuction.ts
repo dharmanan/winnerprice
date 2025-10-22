@@ -88,7 +88,7 @@ export const useAuction = (product: Product | null) => {
         return performFHEEncryption(value);
     };
     
-    const resetAuction = () => {
+    const resetAuction = useCallback(() => {
         setAuctionState(AuctionState.LIVE);
         setUserState(UserState.CAN_JOIN);
         setTimeLeft(AUCTION_DURATION_SECONDS);
@@ -96,11 +96,13 @@ export const useAuction = (product: Product | null) => {
         setWinner(null);
         setBid('');
         setIsLoading(false);
-    };
+    }, []);
     
     useEffect(() => {
-        resetAuction();
-    }, [product, resetAuction]);
+        if (product) {
+            resetAuction();
+        }
+    }, [product]);
 
 
     // Timer logic
