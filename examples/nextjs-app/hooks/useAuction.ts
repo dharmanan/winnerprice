@@ -240,7 +240,6 @@ export const useAuction = (product: Product | null) => {
             return;
         }
 
-        console.log(`[SIMULATE] Simulating ${bidsToSimulate} additional bids with real FHEVM encryption...`);
         setStatusMessage(`🔐 Encrypting ${bidsToSimulate} participant bids with FHEVM...`);
 
         const simulatedBids: Bid[] = [];

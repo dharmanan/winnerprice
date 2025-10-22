@@ -101,7 +101,6 @@ export function useFhevm(parameters: {
         signal: thisSignal,
         provider: thisProvider as any,
         mockChains: thisRpcUrlsByChainId as any,
-  onStatusChange: (s: any) => console.log(`[useFhevm] createFhevmInstance status changed: ${s}`),
       })
   .then((i: any) => {
           if (thisSignal.aborted) return;

@@ -54,7 +54,6 @@ export async function submitEncryptedBid({
     bidDataBytes = typeof encryptedBid === 'string' ? encryptedBid : '0x';
   }
   
-  console.log('[CONTRACT] Submitting encrypted bid, bytes length:', bidDataBytes.length);
   
   // FHEVM-compatible contract: submitEncryptedBid(encrypted data as bytes)
   const tx = await contract.submitEncryptedBid(bidDataBytes);
