@@ -267,8 +267,8 @@ export const useAuction = (product: Product | null) => {
                 const randomBidValue = Math.floor(Math.random() * (MAX_BID - MIN_BID + 1)) + MIN_BID;
                 console.log(`[SIMULATE] Bid ${i + 1}/${bidsToSimulate}: $${randomBidValue}`);
                 
-                // Update status for each bid
-                setStatusMessage(`🔐 Encrypting bid ${i + 1}/${bidsToSimulate}: $${randomBidValue}...`);
+                // Update status for each bid - don't show the actual value, show encryption process
+                setStatusMessage(`🔐 Encrypting bid ${i + 1}/${bidsToSimulate}...`);
 
                 // Real FHEVM encryption
                 const encryptedBid = await encrypt(randomBidValue);
