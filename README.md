@@ -1,10 +1,13 @@
 # WinnerPrice - FHE Auction App 🏆
 
-> A **production-ready** privacy-preserving auction application powered by **Fully Homomorphic Encryption (FHE)** using Zama's FHEVM technology.
+> A **Zama FHE project** - production-ready privacy-preserving auction application powered by **Fully Homomorphic Encryption (FHEVM)** using Zama's official Relayer SDK.
+
+> **Note:** This project demonstrates real-world FHE implementation using the Zama FHEVM ecosystem. It's built following patterns from [dharmanan/fhevm-react-template](https://github.com/dharmanan/fhevm-react-template) and deployed live on Vercel for public testing.
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed-Vercel-blue?logo=vercel)](https://winnerprice.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Tech Stack](https://img.shields.io/badge/Tech-React%2019%20%7C%20Vite%20%7C%20FHEVM-purple)](examples/nextjs-app/package.json)
+[![Zama Powered](https://img.shields.io/badge/Powered%20by-Zama%20FHEVM-blueviolet)](https://docs.zama.ai/fhevm)
 
 **🌐 Live Demo:** [https://winnerprice.vercel.app](https://winnerprice.vercel.app)  
 **📖 Documentation:** [DEVELOPMENT_SUMMARY.md](./DEVELOPMENT_SUMMARY.md) | [README_LATEST.md](./README_LATEST.md)
@@ -262,6 +265,18 @@ const { encryptBid, isLoading } = useEncryptBid();
 - Encrypted on client-side (frontend)
 - Submitted via contract (backend)
 - Never exposed in plaintext
+
+---
+
+## 🧬 Origin & Framework
+
+**This project is inspired by & built upon:**
+- 🎯 **[dharmanan/fhevm-react-template](https://github.com/dharmanan/fhevm-react-template)** - Production FHEVM SDK architecture
+- 📚 **Zama FHEVM Documentation** - Core encryption concepts
+- 🔒 **Zama Relayer SDK v0.2.0** - Official FHE encryption library
+
+**Developed for:** Zama FHE community & education  
+**License:** MIT (open source, production-ready)
 
 ---
 
