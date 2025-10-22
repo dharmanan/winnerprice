@@ -160,29 +160,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
         </div>
       );
     case UserState.CAN_BID:
-      if (!walletConnected) {
-        return (
-          <div className="text-center">
-            <h3 className="text-xl font-bold text-gray-900">Cüzdan Bağlantısı Gerekli</h3>
-            <p className="text-gray-600 mt-2 mb-6">Lütfen cüzdanınızı bağlayın.</p>
-            <Button onClick={async () => {
-              if (typeof window !== 'undefined' && (window as any).ethereum) {
-                const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-                await provider.send('eth_requestAccounts', []);
-                const signerObj = provider.getSigner();
-                setSigner(signerObj);
-                setWalletConnected(true);
-                const addr = await signerObj.getAddress();
-                setAddress(addr);
-                const bal = await provider.getBalance(addr);
-                setBalance(Number(ethers.utils.formatEther(bal)));
-              }
-            }} className="bg-blue-600 hover:bg-blue-700 text-white">
-              Cüzdanı Bağla
-            </Button>
-          </div>
-        );
-      }
+      // After joining, user can always bid - wallet already connected from join flow
       return (
         <div>
           <div className="text-sm text-gray-600 bg-gray-100 p-3 rounded-md mb-4">
