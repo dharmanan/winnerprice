@@ -84,11 +84,11 @@ export const useAuction = (product: Product | null) => {
     );
 
     // ✅ Use direct function (no hooks!) to avoid React hook ordering issues
-    const encrypt = useCallback(async (value: number) => {
+    const encrypt = async (value: number) => {
         return performFHEEncryption(value);
-    }, []);
+    };
     
-    const resetAuction = useCallback(() => {
+    const resetAuction = () => {
         setAuctionState(AuctionState.LIVE);
         setUserState(UserState.CAN_JOIN);
         setTimeLeft(AUCTION_DURATION_SECONDS);
@@ -96,7 +96,7 @@ export const useAuction = (product: Product | null) => {
         setWinner(null);
         setBid('');
         setIsLoading(false);
-    }, []);
+    };
     
     useEffect(() => {
         resetAuction();
@@ -127,15 +127,15 @@ export const useAuction = (product: Product | null) => {
         }
     }, [participants, auctionState, product]);
 
-    const joinAuction = useCallback(async () => {
+    const joinAuction = async () => {
         if (!product) return;
         setIsLoading(true);
         await new Promise(res => setTimeout(res, 1000));
         setUserState(UserState.CAN_BID);
         setIsLoading(false);
-    }, [product]);
+    };
 
-    const submitBid = useCallback(async () => {
+    const submitBid = async () => {
         if (!product) return;
         const bidValue = parseInt(bid, 10);
         if (isNaN(bidValue) || bidValue < MIN_BID || bidValue > MAX_BID) {
@@ -176,9 +176,9 @@ export const useAuction = (product: Product | null) => {
         
         setIsLoading(false);
         setBid('');
-    }, [bid, encrypt, product]);
+    };
 
-    const revealWinner = useCallback(async () => {
+    const revealWinner = async () => {
         if (!product || auctionState !== AuctionState.ENDED) return;
 
         setIsLoading(true);
@@ -222,9 +222,9 @@ export const useAuction = (product: Product | null) => {
         // Clear message after 3 seconds
         setTimeout(() => setStatusMessage(''), 3000);
         setIsLoading(false);
-    }, [auctionState, participants, randomTargetPrice]);
+    };
 
-    const simulateFullAuction = useCallback(async () => {
+    const simulateFullAuction = async () => {
         if (!product) return;
         setIsLoading(true);
         setStatusMessage('🚀 Starting simulation...');
@@ -281,7 +281,7 @@ export const useAuction = (product: Product | null) => {
         // Clear message after 5 seconds
         setTimeout(() => setStatusMessage(''), 5000);
         setIsLoading(false);
-    }, [participants.length, encrypt, product]);
+    };
 
     return {
         auctionState,
