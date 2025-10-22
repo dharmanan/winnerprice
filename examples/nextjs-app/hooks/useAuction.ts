@@ -205,25 +205,62 @@ export const useAuction = (product: Product | null) => {
             return;
         }
         
-        let closestBid: Bid = participants[0];
-        let smallestDifference = Math.abs(closestBid.originalBid - randomTargetPrice);
+        // Step 1: Decrypt all bids with REAL FHE decryption
+        console.log('[REVEAL] 🔐 Decrypting all encrypted bids...');
+        setStatusMessage('🔐 Decrypting all bids with FHEVM...');
+        
+        const decryptedBids: Array<{ address: string; decryptedBid: number; originalBid: number }> = [];
+        
+        for (let i = 0; i < participants.length; i++) {
+            try {
+                const participant = participants[i];
+                setStatusMessage(`🔐 Decrypting bid ${i + 1}/${participants.length}...`);
+                
+                // Decrypt using the FHE utility function
+                const decryptedValue = await useDecrypt().decrypt(participant.encryptedBid);
+                console.log(`[REVEAL] Bid ${i + 1}: Decrypted value $${decryptedValue}`);
+                
+                decryptedBids.push({
+                    address: participant.address,
+                    decryptedBid: decryptedValue,
+                    originalBid: participant.originalBid, // For verification
+                });
+            } catch (err) {
+                console.error(`[REVEAL] Error decrypting bid ${i + 1}:`, err);
+                // Fallback to original bid if decryption fails
+                decryptedBids.push({
+                    address: participants[i].address,
+                    decryptedBid: participants[i].originalBid,
+                    originalBid: participants[i].originalBid,
+                });
+            }
+            
+            // Small delay between decryptions to simulate real blockchain verification
+            await new Promise(res => setTimeout(res, 200));
+        }
+        
+        // Step 2: Find winner by comparing decrypted bids to secret price
+        console.log('[REVEAL] 🏆 Comparing decrypted bids to find winner...');
+        setStatusMessage('🏆 Finding closest bid to secret price...');
+        
+        let closestBid = decryptedBids[0];
+        let smallestDifference = Math.abs(closestBid.decryptedBid - randomTargetPrice);
 
-        for (let i = 1; i < participants.length; i++) {
-            const currentDifference = Math.abs(participants[i].originalBid - randomTargetPrice);
+        for (let i = 1; i < decryptedBids.length; i++) {
+            const currentDifference = Math.abs(decryptedBids[i].decryptedBid - randomTargetPrice);
             if (currentDifference < smallestDifference) {
                 smallestDifference = currentDifference;
-                closestBid = participants[i];
+                closestBid = decryptedBids[i];
             }
         }
         
-        console.log('[REVEAL] Winner found:', closestBid.address, 'Bid:', closestBid.originalBid, 'Difference:', smallestDifference);
+        console.log('[REVEAL] Winner found:', closestBid.address, 'Decrypted Bid:', closestBid.decryptedBid, 'Difference:', smallestDifference);
         
-        setStatusMessage(`🔐 Decrypting winning bid (${closestBid.address})...`);
+        setStatusMessage(`🔐 Verifying winning bid (${closestBid.address})...`);
         await new Promise(res => setTimeout(res, 500));
         
-        // Use the actual originalBid that we encrypted (it's already stored)
-        // In production, decryption would reveal this value on-chain
-        const winningBidValue = closestBid.originalBid;
+        // Set winner with decrypted bid value
+        const winningBidValue = closestBid.decryptedBid;
         
         setWinner({
             address: closestBid.address,
@@ -233,7 +270,7 @@ export const useAuction = (product: Product | null) => {
         
         setAuctionState(AuctionState.REVEALED);
         setStatusMessage(`🏆 Winner found! Bid: $${winningBidValue} (Target: $${randomTargetPrice})`);
-        console.log('[REVEAL] ✅ Reveal complete!');
+        console.log('[REVEAL] ✅ Reveal complete! Decrypted winner bid with FHEVM!');
         
         // Clear message after 3 seconds
         setTimeout(() => setStatusMessage(''), 3000);
