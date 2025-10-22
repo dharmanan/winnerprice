@@ -18,10 +18,8 @@ export class RelayerSDKLoader {
   }
 
   public load(): Promise<void> {
-    console.log("[RelayerSDKLoader] load...");
     // Ensure this only runs in the browser
     if (typeof window === "undefined") {
-      console.log("[RelayerSDKLoader] window === undefined");
       return Promise.reject(
         new Error("RelayerSDKLoader: can only be used in the browser.")
       );
@@ -29,7 +27,6 @@ export class RelayerSDKLoader {
 
     if ("relayerSDK" in window) {
       if (!isFhevmRelayerSDKType(window.relayerSDK, this._trace)) {
-        console.log("[RelayerSDKLoader] window.relayerSDK === undefined");
         throw new Error("RelayerSDKLoader: Unable to load FHEVM Relayer SDK");
       }
       return Promise.resolve();
@@ -58,7 +55,6 @@ export class RelayerSDKLoader {
 
       script.onload = () => {
         if (!isFhevmWindowType(window, this._trace)) {
-          console.log("[RelayerSDKLoader] script onload FAILED...");
           reject(
             new Error(
               `RelayerSDKLoader: Relayer SDK script has been successfully loaded from ${SDK_CDN_URL}, however, the window.relayerSDK object is invalid.`
@@ -69,7 +65,6 @@ export class RelayerSDKLoader {
       };
 
       script.onerror = () => {
-        console.log("[RelayerSDKLoader] script onerror... ");
         reject(
           new Error(
             `RelayerSDKLoader: Failed to load Relayer SDK from ${SDK_CDN_URL}`
@@ -77,9 +72,7 @@ export class RelayerSDKLoader {
         );
       };
 
-      console.log("[RelayerSDKLoader] add script to DOM...");
       document.head.appendChild(script);
-      console.log("[RelayerSDKLoader] script added!")
     });
   }
 }
