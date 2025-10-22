@@ -222,13 +222,27 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
           </div>
           <Button
             onClick={async () => {
-              // Delegate submission to the hook which manages isLoading/status
-              await onSubmitBid();
+              try {
+                if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
+                const encryptedBid = await encrypt(Number(bid));
+                // Use non-hook function directly (no context issues!)
+                await getSubmitEncryptedBid(
+                  contractAddress,
+                  abi,
+                  encryptedBid,
+                  product.entryFee,
+                  signer
+                );
+                onSubmitBid();
+              } catch (e: any) {
+                console.error('Bid submission error:', e);
+                alert('Encryption/onchain failed: ' + e.message);
+              }
             }}
-            disabled={isLoading || btnProcessing || !bid}
+            disabled={isLoading || !bid}
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading || btnProcessing ? (
+            {isLoading ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Encrypting & Submitting...</span>
