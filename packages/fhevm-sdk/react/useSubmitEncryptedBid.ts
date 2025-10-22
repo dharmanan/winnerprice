@@ -1,42 +1,53 @@
-// React hook for submitting encrypted bid onchain
+// Non-hook function for submitting encrypted bid onchain
 import { submitEncryptedBid } from '../core/contract';
 import { ethers } from 'ethers';
 
-// Store signer externally to avoid React hook issues
-let storedSigner: ethers.Signer | undefined = undefined;
-let storedContractAddress = '';
-let storedAbi: any = [];
-let storedEntryFee = 0;
+/**
+ * Non-hook function to submit encrypted bid
+ * Use this instead of hooks to avoid React context errors during re-renders
+ * 
+ * @param contractAddress - Smart contract address
+ * @param abi - Contract ABI
+ * @param encryptedBid - Encrypted bid value
+ * @param entryFee - Entry fee amount
+ * @param signer - Ethers signer from wallet
+ * @returns Promise that resolves when bid is submitted
+ */
+export async function getSubmitEncryptedBid(
+  contractAddress: string,
+  abi: any,
+  encryptedBid: string,
+  entryFee: number,
+  signer: ethers.Signer | undefined
+) {
+  if (!signer) {
+    throw new Error('Signer not available');
+  }
+  if (!contractAddress) {
+    throw new Error('Contract address not configured');
+  }
 
+  return await submitEncryptedBid({
+    contractAddress,
+    abi,
+    encryptedBid,
+    entryFee,
+    signer
+  });
+}
+
+// Legacy hook wrapper for backward compatibility
+// Avoid using this - use getSubmitEncryptedBid instead
 export function useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer }: {
   contractAddress: string;
   abi: any;
   entryFee: number;
   signer: ethers.Signer | undefined;
 }) {
-  // Update stored values without React hooks
-  storedSigner = signer;
-  storedContractAddress = contractAddress;
-  storedAbi = abi;
-  storedEntryFee = entryFee;
-
   const submit = async (encryptedBid: string) => {
-    if (!storedSigner) {
-      throw new Error('Signer not available');
-    }
-    return await submitEncryptedBid({ 
-      contractAddress: storedContractAddress, 
-      abi: storedAbi, 
-      encryptedBid, 
-      entryFee: storedEntryFee, 
-      signer: storedSigner 
-    });
+    return await getSubmitEncryptedBid(contractAddress, abi, encryptedBid, entryFee, signer);
   };
 
   return { submit };
 }
-
-// Usage:
-// const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee, signer });
-// await submit(encryptedBid);
 

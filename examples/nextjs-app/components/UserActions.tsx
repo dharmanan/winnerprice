@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSubmitEncryptedBid } from '../../../packages/fhevm-sdk/react/useSubmitEncryptedBid';
+import { getSubmitEncryptedBid } from '../../../packages/fhevm-sdk/react/useSubmitEncryptedBid';
 import { getEncryptBid } from '../../../packages/fhevm-sdk/react/useEncryptBid';
 import { ethers } from 'ethers';
 import { UserState, Product } from '../types';
@@ -41,7 +41,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   const [walletConnected, setWalletConnected] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
 
-  const { submit } = useSubmitEncryptedBid({ contractAddress, abi, entryFee: product.entryFee, signer: signer as ethers.providers.JsonRpcSigner });
+  // No hook call here - use function directly when needed!
 
   useEffect(() => {
     async function getSignerAndBalance() {
@@ -213,7 +213,14 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
               try {
                 if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
                 const encryptedBid = await encrypt(Number(bid));
-                await submit(encryptedBid);
+                // Use non-hook function directly (no context issues!)
+                await getSubmitEncryptedBid(
+                  contractAddress,
+                  abi,
+                  encryptedBid,
+                  product.entryFee,
+                  signer
+                );
                 onSubmitBid();
               } catch (e: any) {
                 console.error('Bid submission error:', e);

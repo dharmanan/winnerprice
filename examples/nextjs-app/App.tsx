@@ -84,7 +84,12 @@ const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
                   </div>
 
                   <div className="mt-8">
-                    {auctionState !== AuctionState.REVEALED ? (
+                    {auctionState === AuctionState.REVEALED ? (
+                      <WinnerDisplay 
+                        winner={winner || undefined}
+                        targetPrice={randomTargetPrice}
+                      />
+                    ) : (
                       <UserActions 
                         userState={userState}
                         auctionEnded={auctionState === AuctionState.ENDED}
@@ -97,11 +102,6 @@ const App: React.FC<{ sdkReady: boolean }> = ({ sdkReady }) => {
                         onReveal={revealWinner}
                         onSimulate={simulateFullAuction}
                         product={selectedProduct}
-                      />
-                    ) : (
-                      <WinnerDisplay 
-                        winner={winner || undefined}
-                        targetPrice={randomTargetPrice}
                       />
                     )}
                   </div>
