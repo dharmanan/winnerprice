@@ -25,5 +25,22 @@
   <body class="bg-gray-50">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <!-- Suppress browser extension listener errors (Pocket Universe, etc.) -->
+    <script>
+      // Suppress "listener indicated an asynchronous response" warning from extensions
+      // This is a known issue with extension message handlers and doesn't affect app functionality
+      window.addEventListener('error', (event) => {
+        if (event.message && event.message.includes('listener indicated an asynchronous response')) {
+          console.warn('⚠️ Extension message listener warning (suppressed):', event.message);
+          event.preventDefault();
+        }
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        if (event.reason && event.reason.message && event.reason.message.includes('listener indicated an asynchronous response')) {
+          console.warn('⚠️ Extension message listener warning (suppressed):', event.reason.message);
+          event.preventDefault();
+        }
+      });
+    </script>
   </body>
 </html>
