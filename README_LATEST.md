@@ -4,16 +4,16 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Tech Stack](https://img.shields.io/badge/Tech-React%2019%20%7C%20Vite%20%7C%20FHEVM-purple)](package.json)
 
-> A **production-ready** privacy-preserving auction application powered by **Fully Homomorphic Encryption (FHE)** using Zama's FHEVM technology. Real working example for [`fhevm-react-template`](https://github.com/dharmanan/fhevm-react-template).
+> A **production-ready** privacy-preserving auction application powered by **Fully Homomorphic Encryption (FHE)** using Zama's FHEVM technology. Real working example for building encrypted dApps.
 
 **🌐 Live Demo:** [https://winnerprice.vercel.app](https://winnerprice.vercel.app)  
-**📖 Template Integration:** See [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md)
+**📖 Documentation:** [DEVELOPMENT_SUMMARY.md](DEVELOPMENT_SUMMARY.md)
 
 ---
 
-## ⭐ Production-Ready Example for fhevm-react-template
+## ⭐ Production-Ready Example
 
-This repository is a **fully working, production example** for [`fhevm-react-template`](https://github.com/dharmanan/fhevm-react-template).
+This repository is a **fully working, production example** of a privacy-preserving auction powered by FHEVM.
 
 **Use this repo to:**
 - ✅ See how to build a complete FHE app (not just snippets)
@@ -22,7 +22,7 @@ This repository is a **fully working, production example** for [`fhevm-react-tem
 - ✅ Learn how to avoid React context errors
 - ✅ Deploy to Vercel and go live
 
-**Integration guide:** [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md)
+**Full guide:** [`DEVELOPMENT_SUMMARY.md`](DEVELOPMENT_SUMMARY.md)
 
 ---
 
