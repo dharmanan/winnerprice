@@ -131,13 +131,9 @@ export const useAuction = (product: Product | null) => {
 
     const joinAuction = async () => {
         if (!product) return;
-        if (isLoading) return; // prevent double clicks
         setIsLoading(true);
-        setStatusMessage('💳 Processing join payment...');
         await new Promise(res => setTimeout(res, 1000));
         setUserState(UserState.CAN_BID);
-        setStatusMessage('✅ Joined! You can now place your bid.');
-        setTimeout(() => setStatusMessage(''), 1500);
         setIsLoading(false);
     };
 
@@ -192,7 +188,6 @@ export const useAuction = (product: Product | null) => {
         setBid('');
     };    const revealWinner = async () => {
         if (!product || auctionState !== AuctionState.ENDED) return;
-        if (isLoading) return; // guard against duplicate reveal
 
         console.log('[REVEAL] Starting reveal process with', participants.length, 'participants');
         console.log('[REVEAL] Secret target price:', randomTargetPrice);

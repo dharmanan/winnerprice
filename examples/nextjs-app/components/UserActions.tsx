@@ -42,6 +42,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
   const [walletConnected, setWalletConnected] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
   const [btnProcessing, setBtnProcessing] = useState(false);
+  const [submitProcessing, setSubmitProcessing] = useState(false);
 
   // No hook call here - use function directly when needed!
 
@@ -177,19 +178,14 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
       return (
         <div className="text-center">
           <p className="text-gray-600 mb-4">Pay the entry fee to join and place your secret bid.</p>
-          <Button onClick={joinOnchain} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
-            {isLoading ? (
+          <Button onClick={joinOnchain} disabled={btnProcessing} className="bg-blue-600 hover:bg-blue-700 text-white">
+            {btnProcessing ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Processing Payment...</span>
               </div>
             ) : `Pay ${product.entryFee} ETH to Join`}
           </Button>
-          {isLoading && statusMessage && (
-            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700 font-medium">{statusMessage}</p>
-            </div>
-          )}
         </div>
       );
     case UserState.CAN_BID:
@@ -223,6 +219,7 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
           <Button
             onClick={async () => {
               try {
+                setSubmitProcessing(true);
                 if (!sdkReady) throw new Error('FHEVM SDK not initialized!');
                 const encryptedBid = await encrypt(Number(bid));
                 // Use non-hook function directly (no context issues!)
@@ -237,15 +234,17 @@ const UserActions: React.FC<UserActionsProps> = ({ userState, auctionEnded, bid,
               } catch (e: any) {
                 console.error('Bid submission error:', e);
                 alert('Encryption/onchain failed: ' + e.message);
+              } finally {
+                setSubmitProcessing(false);
               }
             }}
-            disabled={isLoading || !bid}
+            disabled={submitProcessing || !bid}
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading ? (
+            {submitProcessing ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Encrypting & Submitting...</span>
+                <span>Submitting...</span>
               </div>
             ) : 'Submit My Encrypted Bid'}
           </Button>
