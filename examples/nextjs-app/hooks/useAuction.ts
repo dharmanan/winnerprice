@@ -145,14 +145,19 @@ export const useAuction = (product: Product | null) => {
             return;
         }
 
+        console.log('[AUCTION] Starting submitBid - bidValue:', bidValue);
+        
         setIsLoading(true);
         setStatusMessage('💳 Processing transaction...');
         await new Promise(res => setTimeout(res, 500));
         
         setStatusMessage('🔒 Encrypting your bid with FHEVM...');
+        console.log('[AUCTION] Encrypting bid...');
         const encryptedBid = await encrypt(bidValue);
         
         setStatusMessage('⛓️  Sending encrypted bid to blockchain...');
+        console.log('[AUCTION] ✅ Bid successfully encrypted with FHEVM');
+        console.log('[AUCTION] Encrypted bid created:', typeof encryptedBid === 'object' ? 'object' : 'string');
         
         // NOTE: In production, this would call the actual contract via useSubmitEncryptedBid
         // The real flow requires:
@@ -161,6 +166,7 @@ export const useAuction = (product: Product | null) => {
         // 3. Call contract.submitBid(encryptedBid) → MetaMask signature popup
         
         await new Promise(res => setTimeout(res, 500));
+        console.log('[AUCTION] Bid onchain gönderildi');
         
         const newParticipant: Bid = {
             address: `0x${Math.random().toString(16).slice(2, 12)}...${Math.random().toString(16).slice(2, 6)}`,
@@ -170,6 +176,8 @@ export const useAuction = (product: Product | null) => {
         
         await new Promise(res => setTimeout(res, 500));
         setParticipants(prev => [...prev, newParticipant]);
+        console.log('[AUCTION] submitBid complete - participant added');
+        
         setUserState(UserState.BID_SUBMITTED);
         setStatusMessage('✅ Bid submitted successfully!');
         
@@ -183,6 +191,9 @@ export const useAuction = (product: Product | null) => {
     const revealWinner = async () => {
         if (!product || auctionState !== AuctionState.ENDED) return;
 
+        console.log('[REVEAL] Starting reveal process with', participants.length, 'participants');
+        console.log('[REVEAL] Secret target price:', randomTargetPrice);
+        
         setIsLoading(true);
         setStatusMessage('🔍 Decrypting bids to find winner...');
         
@@ -205,6 +216,8 @@ export const useAuction = (product: Product | null) => {
             }
         }
         
+        console.log('[REVEAL] Winner found:', closestBid.address, 'Bid:', closestBid.originalBid, 'Difference:', smallestDifference);
+        
         setStatusMessage(`🔐 Decrypting winning bid (${closestBid.address})...`);
         await new Promise(res => setTimeout(res, 500));
         
@@ -220,6 +233,7 @@ export const useAuction = (product: Product | null) => {
         
         setAuctionState(AuctionState.REVEALED);
         setStatusMessage(`🏆 Winner found! Bid: $${winningBidValue} (Target: $${randomTargetPrice})`);
+        console.log('[REVEAL] ✅ Reveal complete!');
         
         // Clear message after 3 seconds
         setTimeout(() => setStatusMessage(''), 3000);
@@ -230,6 +244,7 @@ export const useAuction = (product: Product | null) => {
         if (!product) return;
         setIsLoading(true);
         setStatusMessage('🚀 Starting simulation...');
+        console.log('[SIMULATE] Starting simulation...');
 
         // Simulate 9 additional bids (user + 9 simulated = 10 total)
         // Realistic demo with real FHEVM encryption for each bid
@@ -243,15 +258,17 @@ export const useAuction = (product: Product | null) => {
         }
 
         setStatusMessage(`🔐 Encrypting ${bidsToSimulate} participant bids with FHEVM...`);
+        console.log(`[SIMULATE] Will simulate ${bidsToSimulate} bids`);
 
         const simulatedBids: Bid[] = [];
         for (let i = 0; i < bidsToSimulate; i++) {
             try {
-                // Update status for each bid
-                setStatusMessage(`🔐 Encrypting bid ${i + 1}/${bidsToSimulate}...`);
-                
                 // Generate truly random bid between MIN_BID and MAX_BID
                 const randomBidValue = Math.floor(Math.random() * (MAX_BID - MIN_BID + 1)) + MIN_BID;
+                console.log(`[SIMULATE] Bid ${i + 1}/${bidsToSimulate}: $${randomBidValue}`);
+                
+                // Update status for each bid
+                setStatusMessage(`🔐 Encrypting bid ${i + 1}/${bidsToSimulate}: $${randomBidValue}...`);
 
                 // Real FHEVM encryption
                 const encryptedBid = await encrypt(randomBidValue);
@@ -263,10 +280,12 @@ export const useAuction = (product: Product | null) => {
                 });
 
                 setStatusMessage(`✅ Bid ${i + 1}/${bidsToSimulate} encrypted - Writing to blockchain...`);
+                console.log(`[SIMULATE] ✅ Bid ${i + 1} encrypted and added`);
                 
                 // Add to participants in real-time so user sees progress
                 setParticipants(prev => [...prev, simulatedBids[i]]);
             } catch (err) {
+                console.error(`[SIMULATE] Error on bid ${i + 1}:`, err);
                 setStatusMessage(`❌ Error processing bid ${i + 1}, continuing...`);
                 // Continue with other bids
                 await new Promise(res => setTimeout(res, 500));
@@ -275,6 +294,9 @@ export const useAuction = (product: Product | null) => {
             // Simulate blockchain write delay
             await new Promise(res => setTimeout(res, 300));
         }
+        
+        console.log(`[SIMULATE] Total simulated bids: ${simulatedBids.length}`);
+        console.log(`[SIMULATE] ✅ Simulation complete!`);
         
         setAuctionState(AuctionState.ENDED);
         setTimeLeft(0);
